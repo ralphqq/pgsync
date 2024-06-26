@@ -165,6 +165,11 @@ class LogicalSlotParseError(Exception):
         return repr(self.value)
 
 
+class ParsedValueError(Exception):
+    """Raised when correct type cannot be found during parsing."""
+    pass
+
+
 class RDSError(Exception):
     def __init__(self, value):
         self.value = value

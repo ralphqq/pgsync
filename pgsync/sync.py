@@ -1,3 +1,4 @@
+
 """Sync module."""
 import asyncio
 import json
@@ -34,6 +35,7 @@ from .exc import (
     ForeignKeyError,
     InvalidSchemaError,
     InvalidTGOPError,
+    ParsedValueError,
     PrimaryKeyNotFoundError,
     RDSError,
     SchemaError,
@@ -410,6 +412,9 @@ class Sync(Base, metaclass=Singleton):
                 # TODO: optimize this so we are not parsing the same row twice
                 try:
                     payload: Payload = self.parse_logical_slot(row.data)
+                except ParsedValueError as e:
+                    logger.error(f"Skipping as error when parsing row {e}")
+                    continue
                 except Exception as e:
                     logger.exception(
                         f"Error parsing row: {e}\nRow data: {row.data}"
@@ -423,6 +428,9 @@ class Sync(Base, metaclass=Singleton):
                         payload2: Payload = self.parse_logical_slot(
                             rows[j].data
                         )
+                    except ParsedValueError as e:
+                        logger.error(f"Skipping as error when parsing row {e}")
+                        continue
                     except Exception as e:
                         logger.exception(
                             f"Error parsing row: {e}\nRow data: {rows[j].data}"
